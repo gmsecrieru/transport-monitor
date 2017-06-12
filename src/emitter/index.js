@@ -38,6 +38,8 @@ async function emitVehiclePosition (vehicleEmission) {
 
   const opts = {
     json: true,
+    resolveWithFullResponse: true,
+    simple: false,
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`
@@ -75,7 +77,7 @@ export default async function run (previousEmissionList) {
   const vehicleEmissionList = vehiclesList.map(vehicle => Object.assign({}, vehicle, fakeEmissionData(vehicle)))
 
   // emit an HTTP request for each vehicle
-  await Promise.all(vehicleEmissionList.map(emitVehiclePosition))
+  Promise.all(vehicleEmissionList.map(emitVehiclePosition))
 
   console.log('[emitter] Done, starting again in 20 seconds')
   setTimeout(() => {
