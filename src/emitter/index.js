@@ -46,14 +46,15 @@ async function emitVehiclePosition (vehicleEmission) {
     body: _.omit(vehicleEmission, 'token')
   }
 
+  let response
   try {
-    await request(opts)
+    response = await request(opts)
   } catch (e) {
     console.log('[emitVehiclePosition] Error while emitting position for vehicle -> ', { vehicleEmission, error: e })
     throw e
   }
 
-  console.log('[emitVehiclePosition] Done emitting position for vehicle: ', { token })
+  console.log('[emitVehiclePosition] Done emitting position for vehicle: ', { token, statusCode: response.statusCode })
 }
 
 /**
