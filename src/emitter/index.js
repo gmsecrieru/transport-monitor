@@ -55,32 +55,30 @@ async function emitVehiclePosition (vehicleEmission) {
     console.log('[emitVehiclePosition] Error while emitting position for vehicle -> ', { vehicleEmission, error: e })
     throw e
   }
-
-  console.log('[emitVehiclePosition] Done emitting position for vehicle: ', { token, statusCode: response.statusCode })
 }
+
+/**
+ * Keeps track of last emission to generate route progression
+ */
+let CURRENT_EMISSION_DATA
 
 /**
  * Wrapper for the process of generating and sending fake GPS emissions.
  *
- * @param  {Object} previousEmissionList Array of objects representing a GPS emission, which is
- *                                       used to generate route progression the next iteration
  * @return {void}
  */
-export default async function run (previousEmissionList) {
-  let vehiclesList = previousEmissionList
-  // if missing previous emission, fetch cars from mongodb
-  if (!previousEmissionList || typeof previousEmissionList !== 'object') {
+export default async function run () {
+  let vehiclesList = CURRENT_EMISSION_DATA
+  // if missing previous emission, fetch cars from mongodb and configure interval for recursion
+  if (!CURRENT_EMISSION_DATA || typeof CURRENT_EMISSION_DATA !== 'object') {
     vehiclesList = await getVehicles()
+    setInterval(run, 20000)
   }
 
   // generate first emission data or replace with a little route progression
-  const vehicleEmissionList = vehiclesList.map(vehicle => Object.assign({}, vehicle, fakeEmissionData(vehicle)))
+  CURRENT_EMISSION_DATA = vehiclesList.map(vehicle => Object.assign({}, vehicle, fakeEmissionData(vehicle)))
 
   // emit an HTTP request for each vehicle
-  Promise.all(vehicleEmissionList.map(emitVehiclePosition))
-
-  console.log('[emitter] Done, starting again in 20 seconds')
-  setTimeout(() => {
-    run(vehicleEmissionList)
-  }, 20000)
+  console.log('[emitter] About to send batch of emissions')
+  return Promise.all(CURRENT_EMISSION_DATA.map(emitVehiclePosition)).then((emitResult) => console.log('[emitter] Done, total successful emissions: ', emitResult.length))
 }
