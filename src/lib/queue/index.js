@@ -43,8 +43,8 @@ export function publish (message) {
  * Wrapper for the start process of queue polling
  */
 export async function start () {
-  const attemptToCreateQueueIfNeeded = new Promise((resolve, reject) => {
-    SQS.createQueue({ QueueName: queueName }, (err, data) => err ? reject(err) : resolve(data))
+  const attemptToCreateQueueIfNeeded = new Promise((resolve) => {
+    SQS.createQueue({ QueueName: queueName }, resolve)
   })
 
   await attemptToCreateQueueIfNeeded
