@@ -82,4 +82,18 @@ $ docker run -it -e TASK_NAME=gateway transport-monitor
 ```
 
 ## Consumer
-TBD
+Consumes GPS emissions from a Message Queue, validate and persist (or discard) information
+
+### Usage:
+
+### Local execution
+```
+$ npm run consumer
+...
+$
+```
+
+### Docker image
+```
+$ docker run -it -e TASK_NAME=consumer transport-monitor
+```
