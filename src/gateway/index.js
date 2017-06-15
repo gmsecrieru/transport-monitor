@@ -18,14 +18,17 @@ export default function () {
   app.post('/position', async (req, res) => {
     const { token, body: vehicleEmission } = req
 
-    // check if token is valid
-    const tokenStatus = await isTokenValid(token, vehicleEmission)
-    if (!tokenStatus) {
-      return res.status(401).send('Unauthorized')
+    // TODO: validate against schema?
+    if (!token && !vehicleEmission) {
+      return res.status(400).send('Bad Request')
     }
 
-    // publish message to SQS
-    return publish(vehicleEmission).then(() => res.status(201).send('Created'))
+    res.status(202).send('Accepted')
+
+    // check if token is valid and publish emission to queue
+    if (await isTokenValid(token, vehicleEmission)) {
+      publish(vehicleEmission)
+    }
   })
 
   app.listen(app.get('port'), () => console.log('[gateway] Listening on ', app.get('port')))

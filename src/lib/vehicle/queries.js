@@ -24,6 +24,7 @@ export async function isTokenValid (token, vehicleEmission) {
     type: emissionType
   } = vehicleEmission
 
+  // TODO: consider cacheing this with Redis/Memcache ?
   const collection = await vehicles()
   const vehicleDocument = await collection.findOne({ token })
   if (!vehicleDocument) {

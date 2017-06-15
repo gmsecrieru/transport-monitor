@@ -4,7 +4,7 @@ import config from './../../config'
 /**
  * Connection object
  */
-let DB_CONN
+const DB_CONN = MongoClient.connect(config.db)
 
 /**
  * Exposes `vehicles` collection, which persists city fleet.
@@ -12,9 +12,5 @@ let DB_CONN
  * @return {Object}
  */
 export async function vehicles () {
-  if (!DB_CONN) {
-    DB_CONN = await MongoClient.connect(config.db)
-  }
-
-  return DB_CONN.collection('vehicles')
+  return (await DB_CONN).collection('vehicles')
 }
