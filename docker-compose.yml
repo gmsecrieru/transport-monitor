@@ -1,0 +1,25 @@
+version: '2'
+
+services:
+  transport-consumer:
+    container_name: transport-consumer
+    image: transport-monitor
+    environment:
+      - TASK_NAME=consumer
+  transport-gateway:
+    container_name: transport-gateway
+    image: transport-monitor
+    ports:
+      - "3000:3000"
+    environment:
+      - TASK_NAME=gateway
+    depends_on:
+      - transport-consumer
+  transport-emitter:
+    container_name: transport-emitter
+    image: transport-monitor
+    environment:
+      - TASK_NAME=emitter
+      - EMITTER_RUN_ONCE=true
+    depends_on:
+      - transport-consumer

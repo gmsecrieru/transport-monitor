@@ -1,0 +1,21 @@
+version: '2'
+
+services:
+  elasticmq:
+    container_name: elasticmq
+    image: tddmonkey/elasticmq
+    ports:
+      - "9324:9324"
+    environment:
+      - NODE_PORT=9324
+      - NODE_HOST=192.168.99.100
+  mongodb:
+    container_name: mongodb-dev
+    image: mongo:3.4
+    ports:
+      - "27017:27017"
+  elasticsearch:
+    container_name: elasticsearch-dev
+    image: elasticsearch:5.2
+    ports:
+      - "9200:9200"
