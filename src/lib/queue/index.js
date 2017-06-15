@@ -43,12 +43,6 @@ export function publish (message) {
  * Wrapper for the start process of queue polling
  */
 export async function start () {
-  const attemptToCreateQueueIfNeeded = new Promise((resolve) => {
-    SQS.createQueue({ QueueName: queueName }, resolve)
-  })
-
-  await attemptToCreateQueueIfNeeded
-
   console.log('[queue] Starting consumer')
   CONSUMER.start()
 }
@@ -63,4 +57,17 @@ export function stop (haltProcess = false) {
   if (haltProcess) {
     process.emit('SIGINT')
   }
+}
+
+/**
+ * Create Message Queue for GPS emission processing
+ *
+ * @return {void}
+ */
+export async function createMessageQueue () {
+  const attemptToCreateQueueIfNeeded = new Promise((resolve) => {
+    SQS.createQueue({ QueueName: queueName }, resolve)
+  })
+
+  await attemptToCreateQueueIfNeeded
 }
