@@ -17,8 +17,6 @@ export default async function handleMessage (message, done) {
 
   // persist to elasticsearch if within boundaries
   if (isWithinBoundaries(lat, lon)) {
-    console.log('[handleMessage] About to persist', messageBody)
-
     const { index, type } = config.elastic
     const id = createHash('md5').update(`${messageId}${messageBody.uuid}`).digest('hex')
 
@@ -30,7 +28,7 @@ export default async function handleMessage (message, done) {
       body: _.omit(messageBody, ['_id', 'token'])
     })
   } else {
-    console.log('[handleMessage] Out of city radius, ignoring', messageBody)
+    console.log('[handleMessage] Out of city radius, ignoring', { lat, lon })
   }
 
   // acknowledge message

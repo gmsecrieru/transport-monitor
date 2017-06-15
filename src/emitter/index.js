@@ -2,6 +2,7 @@ import request from 'request-promise-native'
 import _ from 'underscore'
 import config from './../config'
 import { getVehicles } from './../lib/vehicle/queries'
+import { COORD_CITY_CENTER } from './../lib/geolocation'
 
 /**
  * Generate fake latitude, longitude and heading direction for a given vehicle
@@ -13,15 +14,14 @@ import { getVehicles } from './../lib/vehicle/queries'
 function fakeEmissionData (vehicle) {
   const { lat, lon } = vehicle
 
-  // todo: consider city center for more realistic lat,lon data
   return {
     lat: (lat
       ? lat * 1.001
-      : (Math.random() * 50) + 1
+      : (Math.random() + COORD_CITY_CENTER.lat)
     ),
     lon: (lon
       ? lon * 1.001
-      : (Math.random() * 30) + 1
+      : (Math.random() + COORD_CITY_CENTER.lon)
     ),
     heading: Math.floor(Math.random() * 359)
   }
@@ -48,9 +48,8 @@ async function emitVehiclePosition (vehicleEmission) {
     body: _.omit(vehicleEmission, 'token')
   }
 
-  let response
   try {
-    response = await request(opts)
+    await request(opts)
   } catch (e) {
     console.log('[emitVehiclePosition] Error while emitting position for vehicle -> ', { vehicleEmission, error: e })
     throw e
@@ -69,10 +68,14 @@ let CURRENT_EMISSION_DATA
  */
 export default async function run () {
   let vehiclesList = CURRENT_EMISSION_DATA
-  // if missing previous emission, fetch cars from mongodb and configure interval for recursion
+  // if missing previous emission, fetch cars from mongodb
   if (!CURRENT_EMISSION_DATA || typeof CURRENT_EMISSION_DATA !== 'object') {
     vehiclesList = await getVehicles()
-    setInterval(run, 20000)
+
+    // avoid recursion if configured for single execution
+    if (!process.env.EMITTER_RUN_ONCE) {
+      setInterval(run, 20000)
+    }
   }
 
   // generate first emission data or replace with a little route progression
